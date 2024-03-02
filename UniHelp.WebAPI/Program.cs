@@ -1,10 +1,19 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using UniHelp.Domain.Entities;
+using UniHelp.Features.Mapper;
+using UniHelp.Features.Time;
+using UniHelp.Features.UserFeatures.Options;
 using UniHelp.Persistance.Context;
+using UniHelp.Persistance.Repositories;
+using UniHelp.Services.Implementation;
+using UniHelp.WebAPI.Extensions;
+using UniHelp.WebAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddAuthConfigurations(builder.Configuration);
 builder.Services.AddDbContext<UniDataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection")));
 builder.Services.AddControllers();
@@ -51,7 +60,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
 app.UseAuthorization();
 
 app.MapControllers();

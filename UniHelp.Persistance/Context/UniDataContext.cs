@@ -1,11 +1,12 @@
 using DefaultNamespace;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using UniHelp.Domain.Entities;
 using TaskEntity = UniHelp.Domain.Entities.Task;
 
 namespace UniHelp.Persistance.Context;
 
-public class UniDataContext : DbContext
+public class UniDataContext : IdentityDbContext<User>
 {
     public UniDataContext(DbContextOptions<UniDataContext> options) 
         : base(options)
