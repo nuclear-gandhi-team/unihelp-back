@@ -12,12 +12,12 @@ public class User : IdentityUser
     public string Email { get; set; }
 
     [ForeignKey(nameof(Student))]
-    public int StudentId { get; set; }
+    public int? StudentId { get; set; }
     
     public virtual Student? Student { get; set; }
 
     [ForeignKey(nameof(Teacher))]
-    public int TeacherId { get; set; }
+    public int? TeacherId { get; set; }
     
     public virtual Teacher? Teacher { get; set; }
 }

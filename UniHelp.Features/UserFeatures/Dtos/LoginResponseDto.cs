@@ -6,4 +6,7 @@ public record LoginResponseDto
 {
     [Required]
     public string Token { get; set; } = default!;
+
+    [Required]
+    public string Role { get; set; } = default!;
 }
