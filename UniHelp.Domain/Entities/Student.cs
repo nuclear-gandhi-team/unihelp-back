@@ -5,12 +5,6 @@ namespace UniHelp.Domain.Entities;
 
 public class Student : BaseEntity
 {
-    public string FirstName { get; set; }
-    
-    public string LastName { get; set; }
-    
-    public string Email { get; set; }
-    
     public string Faculty { get; set; }
     
     public string Course { get; set; }
@@ -20,4 +14,6 @@ public class Student : BaseEntity
     public virtual IList<StudentTask> StudentTasks { get; set; } = default!;
     
     public virtual IList<StudentClass> StudentClasses { get; set; } = default!;
+
+    public virtual User User { get; set; } = default!;
 }

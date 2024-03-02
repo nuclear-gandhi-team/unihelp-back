@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UniHelp.Persistance.Context;
 
@@ -11,9 +12,11 @@ using UniHelp.Persistance.Context;
 namespace UniHelp.Persistance.Migrations
 {
     [DbContext(typeof(UniDataContext))]
-    partial class UniDataContextModelSnapshot : ModelSnapshot
+    [Migration("20240302152227_UserMig")]
+    partial class UserMig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -418,10 +421,10 @@ namespace UniHelp.Persistance.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StudentId")
+                    b.Property<int>("StudentId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TeacherId")
+                    b.Property<int>("TeacherId")
                         .HasColumnType("int");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -442,12 +445,10 @@ namespace UniHelp.Persistance.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.HasIndex("StudentId")
-                        .IsUnique()
-                        .HasFilter("[StudentId] IS NOT NULL");
+                        .IsUnique();
 
                     b.HasIndex("TeacherId")
-                        .IsUnique()
-                        .HasFilter("[TeacherId] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -597,11 +598,15 @@ namespace UniHelp.Persistance.Migrations
                 {
                     b.HasOne("UniHelp.Domain.Entities.Student", "Student")
                         .WithOne("User")
-                        .HasForeignKey("UniHelp.Domain.Entities.User", "StudentId");
+                        .HasForeignKey("UniHelp.Domain.Entities.User", "StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("UniHelp.Domain.Entities.Teacher", "Teacher")
                         .WithOne("User")
-                        .HasForeignKey("UniHelp.Domain.Entities.User", "TeacherId");
+                        .HasForeignKey("UniHelp.Domain.Entities.User", "TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Student");
 
