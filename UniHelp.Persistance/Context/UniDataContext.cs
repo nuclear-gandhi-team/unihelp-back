@@ -1,12 +1,11 @@
 using DefaultNamespace;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using UniHelp.Domain.Entities;
 using TaskEntity = UniHelp.Domain.Entities.Task;
 
 namespace UniHelp.Persistance.Context;
 
-public class UniDataContext : IdentityDbContext<User>
+public class UniDataContext : DbContext
 {
     public UniDataContext(DbContextOptions<UniDataContext> options) 
         : base(options)
@@ -21,7 +20,7 @@ public class UniDataContext : IdentityDbContext<User>
     public DbSet<TestQuestion> TestQuestions { get; set; }
     public DbSet<AnswerVariant> AnswerVariants { get; set; }
     public DbSet<StudentClass> StudentClasses { get; set; }
-    public DbSet<User> Users { get; set; }
+    public DbSet<User> Users { get; set; } = default!;
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

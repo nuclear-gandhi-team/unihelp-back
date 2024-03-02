@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using UniHelp.Domain.Entities;
+using UniHelp.Features.Constants;
 using UniHelp.Features.Exceptions;
 using UniHelp.Features.Time;
 using UniHelp.Features.UserFeatures.Dtos;
@@ -43,35 +44,41 @@ public class UserService : IUserService
     
     public async Task<LoginResponseDto> LoginUserAsync(LoginUserDto loginUserDto)
     {
-        var userExists = await _userManager.FindByEmailAsync(loginUserDto.Email)
+        var userExists = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == loginUserDto.Email)
                          ?? throw new ArgumentException("User doest exists");
 
         return await _userManager.CheckPasswordAsync(userExists, loginUserDto.Password)
-            ? new LoginResponseDto { Token =  GenerateJwtAsync(userExists) }
+            ? new LoginResponseDto 
+            { 
+                Token =  GenerateJwtAsync(userExists),
+                Role = await _userManager.IsInRoleAsync(userExists, UserRoleNames.Student) 
+                    ? UserRoleNames.Student
+                    : UserRoleNames.Teacher 
+            }
             : throw new AuthenticationException("Wrong password");
     }
 
-    public async Task RegisterUserAsync(RegisterUserDto registerUserDto)
+    public async Task RegisterTeacherUserAsync(RegisterUserDto registerUserDto)
     {
-        var userExists = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == registerUserDto.Email);
+        var user = await RegisterUserAsync(registerUserDto);
 
-        if (userExists is not null)
-        {
-            throw new ArgumentException("User with this Name already exists.");
-        }
-
-        var newUser = _mapper.Map<User>(registerUserDto)
-                      ?? throw new ArgumentException("Invalid data.");
+        await _userManager.AddToRoleAsync(user, UserRoleNames.Teacher);
         
-        var result = await _userManager.CreateAsync(newUser, registerUserDto.Password);
+        var teacher = new Teacher { User = user};
 
-        if (!result.Succeeded)
-        {
-            var errors = result.Errors
-                .Aggregate(string.Empty, (current, err) => current + err.Description);
+        await _unitOfWork.Teachers.AddAsync(teacher);
+    }
 
-            throw new ArgumentException($"User cannot be created: {errors}");
-        }
+    public async Task RegisterStudentUserAsync(RegisterStudentDto registerUserDto)
+    {
+        var user = await RegisterUserAsync(registerUserDto);
+
+        await _userManager.AddToRoleAsync(user, UserRoleNames.Student);
+        
+        var student = _mapper.Map<Student>(registerUserDto);
+        student.User = user;
+
+        await _unitOfWork.Students.AddAsync(student);
     }
 
     public async Task<GetFullUserDto> GetUserByIdAsync(string id)
@@ -156,5 +163,30 @@ public class UserService : IUserService
 
         string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
         return $"Bearer {tokenValue}";
+    }
+    
+    private async Task<User> RegisterUserAsync(RegisterUserDto registerUserDto)
+    {
+        var userExists = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == registerUserDto.Email);
+
+        if (userExists is not null)
+        {
+            throw new ArgumentException("User with this Name already exists.");
+        }
+
+        var newUser = _mapper.Map<User>(registerUserDto)
+                      ?? throw new ArgumentException("Invalid data.");
+        
+        var result = await _userManager.CreateAsync(newUser, registerUserDto.Password);
+
+        if (!result.Succeeded)
+        {
+            var errors = result.Errors
+                .Aggregate(string.Empty, (current, err) => current + err.Description);
+
+            throw new ArgumentException($"User cannot be created: {errors}");
+        }
+
+        return newUser;
     }
 }
