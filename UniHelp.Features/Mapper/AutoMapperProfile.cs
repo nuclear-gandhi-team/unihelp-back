@@ -52,9 +52,9 @@ public class AutoMapperProfile : Profile
             .ReverseMap();
         
         CreateMap<AddStudentToClassDto, StudentClass>()
-            .ForMember(
-                dest => dest.StudentId,
-                opt => opt.MapFrom(src => src.StudentId))
+            .ForPath(
+                dest => dest.Student.User.Email,
+                opt => opt.MapFrom(src => src.Email))
             .ForMember(
                 dest => dest.ClassId,
                 opt => opt.MapFrom(src => src.ClassId))

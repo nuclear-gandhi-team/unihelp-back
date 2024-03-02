@@ -16,10 +16,9 @@ public class ClassesController : ControllerBase
     }
     
     [HttpGet("get-classes")]
-    public async Task<IActionResult> GetAllClassesOfTeacher()
+    public async Task<IActionResult> GetAllClassesOfTeacher(int teacherId)
     {
-        var teacherId = 2; // TODO: get teacher id from token
-        var classes = await _classService.GetClassesAsync(teacherId);
+        var classes = await _classService.GetAllTeacherClassesAsync(teacherId);
         return Ok(classes);
     }
     
@@ -43,7 +42,7 @@ public class ClassesController : ControllerBase
     [HttpPost("add-student-to-class")]
     public async Task<IActionResult> AddStudentToClass([FromBody] AddStudentToClassDto addStudentToClassDto)
     {
-        var classEntity = await _classService.AddStudentToClassAsync(addStudentToClassDto.ClassId, addStudentToClassDto.StudentId);
+        var classEntity = await _classService.AddStudentToClassAsync(addStudentToClassDto.ClassId, addStudentToClassDto.Email);
         return Ok(classEntity);
     }
 }

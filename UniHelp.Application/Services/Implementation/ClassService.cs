@@ -1,4 +1,6 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using UniHelp.Domain.Entities;
 using UniHelp.Features.ClassFeatures.Dtos;
 using UniHelp.Features.Exceptions;
@@ -11,14 +13,16 @@ public class ClassService : IClassService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly UserManager<User> _userManager;
 
-    public ClassService(IUnitOfWork unitOfWork, IMapper mapper)
+    public ClassService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<User> userManager)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _userManager = userManager;
     }
 
-    public async Task<IEnumerable<GetClassDto>> GetClassesAsync(int teacherId)
+    public async Task<IEnumerable<GetClassDto>> GetAllTeacherClassesAsync(int teacherId)
     {
         var classes = await _unitOfWork.Classes.GetClassesByTeacherIdAsync(teacherId);
         return _mapper.Map<IEnumerable<GetClassDto>>(classes);
@@ -49,31 +53,36 @@ public class ClassService : IClassService
         return _mapper.Map<GetClassDto>(classEntity);
     }
 
-    public async Task<GetClassDto> AddStudentToClassAsync(int classId, int studentId)
+    public async Task<GetClassDto> AddStudentToClassAsync(int classId, string email)
     {
-        if (classId <= 0 || studentId <= 0)
+        if (classId <= 0 || string.IsNullOrEmpty(email))
         {
-            throw new ArgumentException("Invalid id");
+            throw new ArgumentException("Invalid id or email");
         }
         var classEntity = await _unitOfWork.Classes.GetClassWithStudentsAsync(classId);
         if (classEntity == null)
         {
             throw new EntityNotFoundException("Class not found");
         }
-        if (classEntity.StudentClasses.Any(sc => sc.StudentId == studentId))
-        {
-            throw new StudentAlreadyInClassException("Student already in class");
-        }
 
-        var studentEntity = await _unitOfWork.Students.GetStudentWithClassesAsync(studentId);
+        var userEntity = await _userManager.Users
+            .Include(u=>u.Student)
+            .FirstOrDefaultAsync(u => u.Email == email);
+        
+        var studentEntity = userEntity.Student;
         if (studentEntity == null)
         {
             throw new EntityNotFoundException("Student not found");
         }
+        if (classEntity.StudentClasses.Any(sc => sc.StudentId == studentEntity.Id))
+        {
+            throw new StudentAlreadyInClassException("Student already in class");
+        }
+
         classEntity.StudentClasses.Add(new StudentClass
         {
             ClassId = classId,
-            StudentId = studentId
+            StudentId = studentEntity.Id
         });
         
         await _unitOfWork.CommitAsync();
