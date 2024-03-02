@@ -8,5 +8,6 @@ public static class RegisterServices
     public static void AddScopedServices(this IServiceCollection builder)
     {
         builder.AddScoped<IUserService, UserService>();
+        builder.AddScoped<ITaskService, TaskService>();
     }
 }

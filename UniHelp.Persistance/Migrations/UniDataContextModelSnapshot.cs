@@ -186,6 +186,9 @@ namespace UniHelp.Persistance.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("bit");
+
                     b.Property<int>("QuestionId")
                         .HasColumnType("int");
 
@@ -345,9 +348,6 @@ namespace UniHelp.Persistance.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CorrectAnswerId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Question")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -356,8 +356,6 @@ namespace UniHelp.Persistance.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CorrectAnswerId");
 
                     b.HasIndex("TaskId");
 
@@ -576,19 +574,11 @@ namespace UniHelp.Persistance.Migrations
 
             modelBuilder.Entity("UniHelp.Domain.Entities.TestQuestion", b =>
                 {
-                    b.HasOne("UniHelp.Domain.Entities.AnswerVariant", "CorrectAnswer")
-                        .WithMany()
-                        .HasForeignKey("CorrectAnswerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("UniHelp.Domain.Entities.Task", "Task")
                         .WithMany("TestQuestions")
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("CorrectAnswer");
 
                     b.Navigation("Task");
                 });

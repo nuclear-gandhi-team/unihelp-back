@@ -14,8 +14,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddAuthConfigurations(builder.Configuration);
+string connectionString;
+if (builder.Environment.IsDevelopment())
+{
+    connectionString = builder.Configuration.GetConnectionString("LocalConnStr")
+                       ?? throw new NullReferenceException("Connection string to local DB os not set.");
+}
+else
+{
+    connectionString = builder.Configuration.GetConnectionString("AzureConnStr")
+                       ?? throw new NullReferenceException("Connection string to Azure DB os not set.");
+}
 builder.Services.AddDbContext<UniDataContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection")));
+    options.UseSqlServer(connectionString));
 builder.Services.AddControllers();
 builder.Services.AddScopedRepositories();
 builder.Services.AddScopedServices();
@@ -37,6 +48,20 @@ builder.Services.AddIdentity<User, IdentityRole>()
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var dbContext = services.GetRequiredService<UniDataContext>();
+        dbContext.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"{ex.Message} - An error occurred while applying the database migrations.");
+    }
+}
+
 RolesDbInitializer.SeedRolesToDbAsync(app).Wait();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
@@ -49,11 +74,8 @@ app.UseCors(corsPolicyBuilder => corsPolicyBuilder
     .WithExposedHeaders("Content-Disposition")
     .WithOrigins("http://localhost:8080", "http://localhost:4200"));
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

@@ -6,7 +6,7 @@ namespace UniHelp.Domain.Entities;
 public class StudentTask : BaseEntity
 {
     [ForeignKey(nameof(Student))]
-    public int StudentId { get; set; }
+    public string StudentId { get; set; }
     
     public Student Student { get; set; }
     

@@ -167,6 +167,10 @@ public class UserService : IUserService
     
     private async Task<User> RegisterUserAsync(RegisterUserDto registerUserDto)
     {
+        if (registerUserDto.Password != registerUserDto.ConfirmPassword)
+        {
+            throw new ArgumentException("Password is not equal to Confirm Password");
+        }
         var userExists = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == registerUserDto.Email);
 
         if (userExists is not null)

@@ -12,10 +12,5 @@ public class TestQuestion : BaseEntity
     
     public string Question { get; set; }
     
-    public int CorrectAnswerId { get; set; }
-    
     public virtual IList<AnswerVariant> AnswerVariants { get; set; } = default!;
-    
-    [ForeignKey(nameof(CorrectAnswerId))]
-    public virtual AnswerVariant CorrectAnswer { get; set; }
 }

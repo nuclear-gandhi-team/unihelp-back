@@ -37,13 +37,6 @@ public class UniDataContext : IdentityDbContext<User>
             .WithMany(c => c.StudentClasses)
             .HasForeignKey(sc => sc.ClassId);
 
-        modelBuilder.Entity<TestQuestion>()
-            .HasOne(q => q.CorrectAnswer)
-            .WithMany()
-            .HasForeignKey(q => q.CorrectAnswerId)
-            .IsRequired(true)
-            .OnDelete(DeleteBehavior.Restrict);
-
         modelBuilder.Entity<AnswerVariant>()
             .HasOne(av => av.Question)
             .WithMany(q => q.AnswerVariants)
