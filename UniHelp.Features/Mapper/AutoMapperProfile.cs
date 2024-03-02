@@ -2,6 +2,7 @@ using System.Globalization;
 using AutoMapper;
 using UniHelp.Domain.Entities;
 using UniHelp.Features.ClassFeatures.Dtos;
+using UniHelp.Features.StudentFeatures.Dtos;
 using UniHelp.Features.UserFeatures.Dtos;
 
 namespace UniHelp.Features.Mapper;
@@ -45,6 +46,48 @@ public class AutoMapperProfile : Profile
             .ForMember(
                 dest => dest.ClassesNumber,
                 opt => opt.MapFrom(src => src.ClassesNumber))
+            .ReverseMap();
+        
+        CreateMap<AddStudentToClassDto, StudentClass>()
+            .ForMember(
+                dest => dest.StudentId,
+                opt => opt.MapFrom(src => src.StudentId))
+            .ForMember(
+                dest => dest.ClassId,
+                opt => opt.MapFrom(src => src.ClassId))
+            .ReverseMap();
+        
+        CreateMap<GetAllDto, Student>()
+            .ForPath(
+                dest => dest.User.FirstName,
+                opt => opt.MapFrom(src => src.FirstName))
+            .ForPath(
+                dest => dest.User.LastName,
+                opt => opt.MapFrom(src => src.LastName))
+            .ForMember(
+                dest => dest.Group,
+                opt => opt.MapFrom(src => src.Group))
+            .ReverseMap();
+
+        CreateMap<GetOneDto, Student>()
+            .ForPath(
+                dest => dest.User.FirstName,
+                opt => opt.MapFrom(src => src.FirstName))
+            .ForPath(
+                dest => dest.User.LastName,
+                opt => opt.MapFrom(src => src.LastName))
+            .ForMember(
+                dest => dest.Group,
+                opt => opt.MapFrom(src => src.Group))
+            .ForPath(
+                dest => dest.User.Email,
+                opt => opt.MapFrom(src => src.Email))
+            .ForMember(
+                dest => dest.Course,
+                opt => opt.MapFrom(src => src.Course))
+            .ForMember(
+                dest => dest.Faculty,
+                opt => opt.MapFrom(src => src.Faculty))
             .ReverseMap();
     }
     

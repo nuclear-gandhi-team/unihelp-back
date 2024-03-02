@@ -26,6 +26,10 @@ public class ClassService : IClassService
 
     public async Task<GetClassDto> GetClassByIdAsync(int id)
     {
+        if (id <= 0)
+        {
+            throw new ArgumentException("Invalid id");
+        }
         var classEntity = await _unitOfWork.Classes.GetByIdAsync(id);
         if (classEntity == null)
         {
@@ -41,6 +45,37 @@ public class ClassService : IClassService
         
         classEntity.TeacherId = teacherId;
         await _unitOfWork.Classes.AddAsync(classEntity);
+        await _unitOfWork.CommitAsync();
+        return _mapper.Map<GetClassDto>(classEntity);
+    }
+
+    public async Task<GetClassDto> AddStudentToClassAsync(int classId, int studentId)
+    {
+        if (classId <= 0 || studentId <= 0)
+        {
+            throw new ArgumentException("Invalid id");
+        }
+        var classEntity = await _unitOfWork.Classes.GetClassWithStudentsAsync(classId);
+        if (classEntity == null)
+        {
+            throw new EntityNotFoundException("Class not found");
+        }
+        if (classEntity.StudentClasses.Any(sc => sc.StudentId == studentId))
+        {
+            throw new StudentAlreadyInClassException("Student already in class");
+        }
+
+        var studentEntity = await _unitOfWork.Students.GetStudentWithClassesAsync(studentId);
+        if (studentEntity == null)
+        {
+            throw new EntityNotFoundException("Student not found");
+        }
+        classEntity.StudentClasses.Add(new StudentClass
+        {
+            ClassId = classId,
+            StudentId = studentId
+        });
+        
         await _unitOfWork.CommitAsync();
         return _mapper.Map<GetClassDto>(classEntity);
     }

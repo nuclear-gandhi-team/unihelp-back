@@ -37,4 +37,13 @@ public class ClassesController : ControllerBase
         var classEntity = await _classService.CreateClassAsync(newClass, teacherId);
         return Ok(classEntity);
     }
+    
+    
+    //TODO: add authorization
+    [HttpPost("add-student-to-class")]
+    public async Task<IActionResult> AddStudentToClass([FromBody] AddStudentToClassDto addStudentToClassDto)
+    {
+        var classEntity = await _classService.AddStudentToClassAsync(addStudentToClassDto.ClassId, addStudentToClassDto.StudentId);
+        return Ok(classEntity);
+    }
 }
