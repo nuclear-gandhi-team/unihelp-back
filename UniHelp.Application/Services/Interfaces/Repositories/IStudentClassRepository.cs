@@ -1,4 +1,4 @@
-using DefaultNamespace;
+using UniHelp.Domain.Entities;
 
 namespace UniHelp.Services.Interfaces.Repositories;
 

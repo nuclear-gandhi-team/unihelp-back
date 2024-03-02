@@ -10,4 +10,6 @@ public interface IClassService
     Task<GetClassDto> GetClassByIdAsync(int id);
     
     Task<GetClassDto> CreateClassAsync(AddClassDto newClass, int teacherId);
+    
+    Task<GetClassDto> AddStudentToClassAsync(int classId, int studentId);
 }

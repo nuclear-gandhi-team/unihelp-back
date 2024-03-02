@@ -19,4 +19,13 @@ public class ClassRepository : Repository<Class>, IClassRepository
         var classes = await _dbContext.Classes.Where(c => c.TeacherId == teacherId).ToListAsync();
         return classes;
     }
+
+    public async Task<Class> GetClassWithStudentsAsync(int id)
+    {
+        var classEntity = await _dbContext.Classes
+            .Include(c => c.StudentClasses)
+            .ThenInclude(sc => sc.Student)
+            .FirstOrDefaultAsync(c => c.Id == id);
+        return classEntity;
+    }
 }
