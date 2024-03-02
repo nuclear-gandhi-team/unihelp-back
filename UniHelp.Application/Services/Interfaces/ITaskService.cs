@@ -7,7 +7,11 @@ public interface ITaskService
 {
     Task AddTaskAsync(AddTaskDto addTaskDto);
 
-    Task SubmitTaskAsync(SubmitTaskDto submitTaskDto, IFormFile file, string studentId);
+    Task SubmitTaskAsync(SubmitTaskDto submitTaskDto, string studentId);
 
     Task SubmitTestAsync(SubmitTestDto submitTaskDto, string studentId);
+
+    Task SetGradeAsync(SetGradeDto setGradeDto);
+
+    Task<GetClosestTaskDto> GetClosestTaskAsync(int classId);
 }

@@ -47,13 +47,15 @@ public class UserService : IUserService
         var userExists = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == loginUserDto.Email)
                          ?? throw new ArgumentException("User doest exists");
 
+        var role = await _userManager.IsInRoleAsync(userExists, UserRoleNames.Student)
+            ? UserRoleNames.Student
+            : UserRoleNames.Teacher;
+        
         return await _userManager.CheckPasswordAsync(userExists, loginUserDto.Password)
             ? new LoginResponseDto 
             { 
-                Token =  GenerateJwtAsync(userExists),
-                Role = await _userManager.IsInRoleAsync(userExists, UserRoleNames.Student) 
-                    ? UserRoleNames.Student
-                    : UserRoleNames.Teacher 
+                Token =  GenerateJwtAsync(userExists, role),
+                Role = role
             }
             : throw new AuthenticationException("Wrong password");
     }
@@ -142,7 +144,7 @@ public class UserService : IUserService
         }
     }
     
-    private string GenerateJwtAsync(User user)
+    private string GenerateJwtAsync(User user, string roleName)
     {
         var authClaims = new List<Claim>
         {
@@ -150,6 +152,7 @@ public class UserService : IUserService
             new(ClaimTypes.NameIdentifier, user.Id),
             new(JwtRegisteredClaimNames.Sub, user.UserName ?? string.Empty),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(ClaimTypes.Role, roleName),
         };
 
         var authSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtOptions.Secret));

@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using UniHelp.Domain.Entities;
+using UniHelp.Domain.Enums;
 using UniHelp.Features.TasksFeature.Dtos;
 using UniHelp.Services.Interfaces;
 using UniHelp.Services.Interfaces.Repositories;
@@ -56,24 +57,20 @@ public class TaskService : ITaskService
                 };
 
                 await _unitOfWork.TestQuestions.AddAsync(tq);
+
+                int counter = 0;
                 foreach (var variant in testQuestion.AnswerVariants)
                 {
                     var answerVariant = new AnswerVariant
                     {
                         Text = variant,
-                        IsCorrect = false,
+                        IsCorrect = counter == testQuestion.CorrectAnswer,
                         Question = tq,
                     };
 
+                    counter++;
                     await _unitOfWork.AnswerVariants.AddAsync(answerVariant);
                 }
-                
-                await _unitOfWork.AnswerVariants.AddAsync(new AnswerVariant
-                {
-                    Text = testQuestion.CorrectAnswer,
-                    IsCorrect = true,
-                    Question = tq,
-                });
             }
 
             await _unitOfWork.TestQuestions.AddRangeAsync(testQuestions);
@@ -82,15 +79,15 @@ public class TaskService : ITaskService
         await _unitOfWork.CommitAsync();
     }
 
-    public async Task SubmitTaskAsync(SubmitTaskDto submitTaskDto, IFormFile file, string studentId)
+    public async Task SubmitTaskAsync(SubmitTaskDto submitTaskDto, string studentId)
     {
-        if (file is null || file.Length == 0)
+        if (submitTaskDto.File is null || submitTaskDto.File.Length == 0)
         {
             throw new ArgumentException("No file uploaded.");
         }
 
         using var memoryStream = new MemoryStream();
-        await file.CopyToAsync(memoryStream);
+        await submitTaskDto.File.CopyToAsync(memoryStream);
         
         var user = await _userManager.FindByIdAsync(studentId);
         
@@ -121,6 +118,8 @@ public class TaskService : ITaskService
             }
         }
 
+        grade = task.MaxPoints / submitTaskDto.Answers.Count;
+
         var user = await _userManager.FindByIdAsync(studentId);
         
         var studentTask = new StudentTask
@@ -134,5 +133,23 @@ public class TaskService : ITaskService
 
         await _unitOfWork.StudentTasks.AddAsync(studentTask);
         await _unitOfWork.CommitAsync();
+    }
+
+    public async Task SetGradeAsync(SetGradeDto setGradeDto)
+    {
+        var task = await _unitOfWork.Tasks.GetByIdAsync(setGradeDto.TaskId)
+                   ?? throw new ArgumentException("No task with Id '{setGradeDto.TaskId}'");
+
+        var studentTask = task.StudentTasks.FirstOrDefault(
+            st => st.StudentId == setGradeDto.StudentId && st.TaskId == setGradeDto.TaskId);
+
+        studentTask.Grade = setGradeDto.Grade;
+
+        await _unitOfWork.CommitAsync();
+    }
+
+    public Task<GetClosestTaskDto> GetClosestTaskAsync(int classId)
+    {
+        throw new NotImplementedException();
     }
 }

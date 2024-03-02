@@ -11,5 +11,5 @@ public record AddTestQuestionDto
     public virtual IList<string> AnswerVariants { get; set; } = default!;
     
     [Required]
-    public string CorrectAnswer { get; set; } = default!;
+    public int CorrectAnswer { get; set; } = default!;
 }

@@ -1,13 +1,15 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Http;
 
 namespace UniHelp.Features.TasksFeature.Dtos;
 
-public record SubmitTaskDto
+public record SetGradeDto
 {
     [Required]
     public int TaskId { get; set; }
-
+    
     [Required]
-    public IFormFile File { get; set; } = default!;
+    public int Grade { get; set; }
+    
+    [Required]
+    public int StudentId { get; set; }
 }
