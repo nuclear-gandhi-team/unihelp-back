@@ -26,4 +26,6 @@ public class Task : BaseEntity
     public virtual IList<StudentTask> StudentTasks { get; set; } = default!;
     
     public virtual IList<TestQuestion> TestQuestions { get; set; } = default!;
+    
+    public virtual IList<Comment> Comments { get; set; } = default!;
 }

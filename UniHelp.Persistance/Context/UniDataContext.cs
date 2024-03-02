@@ -21,6 +21,7 @@ public class UniDataContext : IdentityDbContext<User>
     public DbSet<AnswerVariant> AnswerVariants { get; set; }
     public DbSet<StudentClass> StudentClasses { get; set; }
     public DbSet<User> Users { get; set; } = default!;
+    public virtual DbSet<Comment> Comments { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

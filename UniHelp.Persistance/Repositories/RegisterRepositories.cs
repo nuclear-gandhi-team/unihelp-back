@@ -16,6 +16,7 @@ public static class RegisterRepositories
         builder.AddScoped<IClassRepository, ClassRepository>();
         builder.AddScoped<IUserRepository, UserRepository>();
         builder.AddScoped<ITestQuestionRepository, TestQuestionRepository>();
+        builder.AddScoped<ICommentRepository, CommentRepository>();
         builder.AddScoped<IUnitOfWork, UnitOfWork>();
     }
 }
