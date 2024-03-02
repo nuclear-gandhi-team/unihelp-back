@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using DefaultNamespace;
 using UniHelp.Domain.Common;
 
 namespace UniHelp.Domain.Entities;

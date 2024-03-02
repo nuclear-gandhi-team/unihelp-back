@@ -9,5 +9,8 @@ public static class RegisterServices
     {
         builder.AddScoped<IUserService, UserService>();
         builder.AddScoped<ITaskService, TaskService>();
+        builder.AddScoped<IClassService, ClassService>();
+        builder.AddScoped<IStudentService, StudentService>();
+        builder.AddScoped<ICommentService, CommentService>();
     }
 }
