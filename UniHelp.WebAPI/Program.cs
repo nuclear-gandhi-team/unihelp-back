@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using UniHelp.Persistance.Context;
+using UniHelp.Persistance.Repositories;
+using UniHelp.Services.Implementation;
 using UniHelp.WebAPI.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,8 @@ builder.Services.AddAuthConfigurations(builder.Configuration);
 builder.Services.AddDbContext<UniDataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection")));
 builder.Services.AddControllers();
+builder.Services.AddScopedRepositories();
+builder.Services.AddScopedServices();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
