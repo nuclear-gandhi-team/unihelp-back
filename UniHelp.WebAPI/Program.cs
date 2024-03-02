@@ -8,7 +8,7 @@ using UniHelp.Persistance.Context;
 using UniHelp.Persistance.Repositories;
 using UniHelp.Services.Implementation;
 using UniHelp.WebAPI.Extensions;
-using ExceptionHandlerMiddleware = UniHelp.WebAPI.Middleware.ExceptionHandlerMiddleware;
+using UniHelp.WebAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +17,9 @@ builder.Services.AddAuthConfigurations(builder.Configuration);
 builder.Services.AddDbContext<UniDataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection")));
 builder.Services.AddControllers();
+builder.Services.AddScopedRepositories();
+builder.Services.AddScopedServices();
+
 builder.Services.AddScopedRepositories();
 builder.Services.AddScopedServices();
 
@@ -57,7 +60,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,6 +1,7 @@
 using System.Globalization;
 using AutoMapper;
 using UniHelp.Domain.Entities;
+using UniHelp.Features.ClassFeatures.Dtos;
 using UniHelp.Features.UserFeatures.Dtos;
 
 namespace UniHelp.Features.Mapper;
@@ -20,6 +21,31 @@ public class AutoMapperProfile : Profile
             .ReverseMap();
         
         CreateMap<RegisterStudentDto, Student>().ReverseMap();
+        CreateMap<Class, GetClassDto>()
+            .ForMember(
+                dest => dest.ClassName,
+                opt => opt.MapFrom(src => src.Name))
+            .ForMember(
+                dest => dest.ClassDescription,
+                opt => opt.MapFrom(src => src.Description))
+            .ForMember(
+                dest => dest.ClassesNumber,
+                opt => opt.MapFrom(src => src.ClassesNumber))
+            .ForMember(
+                dest => dest.TeacherId,
+                opt => opt.MapFrom(src => src.TeacherId));
+
+        CreateMap<AddClassDto, Class>()
+            .ForMember(
+                dest => dest.Name,
+                opt => opt.MapFrom(src => src.ClassName))
+            .ForMember(
+                dest => dest.Description,
+                opt => opt.MapFrom(src => src.ClassDescription))
+            .ForMember(
+                dest => dest.ClassesNumber,
+                opt => opt.MapFrom(src => src.ClassesNumber))
+            .ReverseMap();
     }
     
     private static DateTime? ParseDateTime(string dateString)
