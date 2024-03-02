@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using UniHelp.Features.CommentFeatures;
 using UniHelp.Services.Interfaces;
+using UniHelp.WebAPI.Extensions;
 
 namespace UniHelp.WebAPI.Controllers;
 
@@ -25,16 +26,14 @@ public class CommentsController : ControllerBase
     [HttpPost("add-comment")]
     public async Task<IActionResult> AddComment([FromBody] CreateCommentDto createCommentDto)
     {
-        var studentId = "..."; // TODO: get user id from token
-        await _commentService.AddCommentAsync(createCommentDto, studentId);
+        await _commentService.AddCommentAsync(createCommentDto, (await this.GetUserIdFromJwtAsync())!);
         return Ok();
     }
     
     [HttpDelete("remove-comment/{commentId}")]
     public async Task<IActionResult> RemoveComment(int commentId)
     {
-        var studentId = "..."; // TODO: get user id from token
-        await _commentService.RemoveCommentAsync(commentId, studentId);
+        await _commentService.RemoveCommentAsync(commentId, (await this.GetUserIdFromJwtAsync())!);
         return Ok();
     }
 }

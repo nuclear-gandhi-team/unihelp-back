@@ -8,6 +8,7 @@ using UniHelp.Features.Constants;
 using UniHelp.Features.StudentFeatures.Dtos;
 using UniHelp.Features.TasksFeature.Dtos;
 using UniHelp.Features.UserFeatures.Dtos;
+using Task = UniHelp.Domain.Entities.Task;
 
 namespace UniHelp.Features.Mapper;
 
@@ -134,5 +135,19 @@ public class AutoMapperProfile : Profile
             dateString, "yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result)
             ? result
             : null;
+    }
+    
+    private static string ChangeCommentBody(Comment comment)
+    {
+        return comment.IsRemoved
+            ? CommentBody.DeletedCommentBody
+            : comment.Action switch
+            {
+                CommentTypes.Reply => string.Format(CommentBody.ReplyBodyTemplate, comment.Task.Name, comment.Id, comment.User.UserName, comment.Body),
+                CommentTypes.Quote => string.Format(CommentBody.QuoteBodyTemplate, comment.Task.Name, comment.Id, comment.User.UserName, comment.Body, comment.ParentComment?.Body),
+                CommentTypes.Comment => comment.Body,
+                CommentTypes.Nothing => comment.Body,
+                _ => throw new ArgumentOutOfRangeException(),
+            };
     }
 }

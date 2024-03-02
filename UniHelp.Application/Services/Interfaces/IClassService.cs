@@ -7,9 +7,11 @@ public interface IClassService
 {
     Task<IEnumerable<GetClassDto>> GetClassesAsync(int teacherId);
     
+    Task<IEnumerable<GetClassDto>> GetClassesAsync();
+    
     Task<GetClassDto> GetClassByIdAsync(int id);
     
-    Task<GetClassDto> CreateClassAsync(AddClassDto newClass, int teacherId);
+    Task<GetClassDto> CreateClassAsync(AddClassDto newClass, string userId);
     
-    Task<GetClassDto> AddStudentToClassAsync(int classId, int studentId);
+    Task<GetClassDto> AddStudentToClassAsync(int classId, int userId);
 }
