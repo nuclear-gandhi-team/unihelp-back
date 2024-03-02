@@ -8,5 +8,5 @@ public record SubmitTestDto
     public int TaskId { get; set; }
     
     [Required]
-    public List<SubmitTestDto> Answers { get; set; } = default!;
+    public List<TestAnswersDto> Answers { get; set; } = default!;
 }

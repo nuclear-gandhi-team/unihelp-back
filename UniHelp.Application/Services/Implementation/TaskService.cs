@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using UniHelp.Domain.Entities;
 using UniHelp.Features.TasksFeature.Dtos;
 using UniHelp.Services.Interfaces;
@@ -11,12 +12,14 @@ namespace UniHelp.Services.Implementation;
 public class TaskService : ITaskService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly UserManager<User> _userManager;
     private readonly IMapper _mapper;
 
-    public TaskService(IUnitOfWork unitOfWork, IMapper mapper)
+    public TaskService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<User> userManager)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _userManager = userManager;
     }
 
     public async Task AddTaskAsync(AddTaskDto addTaskDto)
@@ -88,9 +91,12 @@ public class TaskService : ITaskService
 
         using var memoryStream = new MemoryStream();
         await file.CopyToAsync(memoryStream);
+        
+        var user = await _userManager.FindByIdAsync(studentId);
+        
         var studentTask = new StudentTask
         {
-            StudentId = studentId,
+            StudentId = (int)user!.StudentId!,
             TaskId = submitTaskDto.TaskId,
             HandedDate = DateTime.Now,
             File = memoryStream.ToArray()
@@ -107,13 +113,19 @@ public class TaskService : ITaskService
 
         int grade = 0;
         
-        /*foreach (var question in task.TestQuestions)
+        foreach (var answer in submitTaskDto.Answers)
         {
-            if(question.AnswerVariants.FirstOrDefault(av => av.IsCorrect) == submitTaskDto.Answers[])
-        }*/
+            if (((await _unitOfWork.AnswerVariants.GetByIdAsync(answer.VariantId))!).IsCorrect)
+            {
+                grade++;
+            }
+        }
+
+        var user = await _userManager.FindByIdAsync(studentId);
+        
         var studentTask = new StudentTask
         {
-            StudentId = studentId,
+            StudentId = (int)user!.StudentId!,
             TaskId = submitTaskDto.TaskId,
             HandedDate = DateTime.Now,
             File = null!,
