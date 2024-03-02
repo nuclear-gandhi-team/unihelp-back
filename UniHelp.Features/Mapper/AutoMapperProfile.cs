@@ -32,6 +32,8 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.Question,
                 opt =>opt.MapFrom(src => src.Question))
             .ReverseMap();
+
+        CreateMap<GetTaskDto, Task>().ReverseMap();
     }
     
     private static DateTime? ParseDateTime(string dateString)

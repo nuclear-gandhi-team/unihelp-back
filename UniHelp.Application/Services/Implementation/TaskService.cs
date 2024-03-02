@@ -148,8 +148,13 @@ public class TaskService : ITaskService
         await _unitOfWork.CommitAsync();
     }
 
-    public Task<GetClosestTaskDto> GetClosestTaskAsync(int classId)
+    public async Task<GetTaskDto> GetClosestTaskAsync(int classId)
     {
-        throw new NotImplementedException();
+        var cls = await _unitOfWork.Classes.GetByIdAsync(classId)
+            ?? throw new ArgumentException($"No class with Id '{classId}'");
+
+        var closestTask = cls.Tasks.MinBy(t => t.DateEnd);
+
+        return _mapper.Map<GetTaskDto>(closestTask);
     }
 }

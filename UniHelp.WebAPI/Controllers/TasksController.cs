@@ -60,4 +60,11 @@ public class TasksController : ControllerBase
 
         return Ok();
     }
+    
+    [HttpGet]
+    [Route("closest-task-by-class/{classId:int}")]
+    public async Task<IActionResult> GetClosestTaskByClassAsync(int classId)
+    {
+       return Ok(await _taskService.GetClosestTaskAsync(classId));
+    }
 }

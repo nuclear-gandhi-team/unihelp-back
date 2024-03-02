@@ -13,5 +13,5 @@ public interface ITaskService
 
     Task SetGradeAsync(SetGradeDto setGradeDto);
 
-    Task<GetClosestTaskDto> GetClosestTaskAsync(int classId);
+    Task<GetTaskDto> GetClosestTaskAsync(int classId);
 }
