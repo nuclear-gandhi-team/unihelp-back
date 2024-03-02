@@ -8,7 +8,7 @@ public class UnitOfWork : IUnitOfWork
     private readonly UniDataContext _context;
     private bool _disposed;
 
-    public UnitOfWork(UniDataContext context, ITeacherRepository teachers, IStudentClassRepository studentClasses, ITestQuestionRepository testQuestions, IStudentRepository students, IAnswerVariantRepository answerVariants, ITaskRepository tasks, IStudentTaskRepository studentTasks, IClassRepository classes, IUserRepository users)
+    public UnitOfWork(UniDataContext context, ITeacherRepository teachers, IStudentClassRepository studentClasses, ITestQuestionRepository testQuestions, IStudentRepository students, IAnswerVariantRepository answerVariants, ITaskRepository tasks, IStudentTaskRepository studentTasks, IClassRepository classes, IUserRepository users, ICommentRepository comments)
     {
         _context = context;
         Teachers = teachers;
@@ -20,6 +20,7 @@ public class UnitOfWork : IUnitOfWork
         StudentTasks = studentTasks;
         Classes = classes;
         Users = users;
+        Comments = comments;
     }
 
     public ITeacherRepository Teachers { get; }
@@ -31,6 +32,7 @@ public class UnitOfWork : IUnitOfWork
     public IStudentTaskRepository StudentTasks { get; }
     public IClassRepository Classes { get; }
     public IUserRepository Users { get; }
+    public ICommentRepository Comments { get; }
     public async Task CommitAsync()
     {
         await _context.SaveChangesAsync();

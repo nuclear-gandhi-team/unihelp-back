@@ -1,7 +1,10 @@
 using System.Globalization;
 using AutoMapper;
 using UniHelp.Domain.Entities;
+using UniHelp.Domain.Enums;
 using UniHelp.Features.ClassFeatures.Dtos;
+using UniHelp.Features.CommentFeatures;
+using UniHelp.Features.Constants;
 using UniHelp.Features.StudentFeatures.Dtos;
 using UniHelp.Features.UserFeatures.Dtos;
 
@@ -89,6 +92,27 @@ public class AutoMapperProfile : Profile
                 dest => dest.Faculty,
                 opt => opt.MapFrom(src => src.Faculty))
             .ReverseMap();
+        
+        CreateMap<Comment, GetCommentDto>()
+            .ForMember(dest => dest.Body,
+                opt => opt.MapFrom(src => ChangeCommentBody(src)))
+            .ForMember(
+                dest => dest.ChildComments,
+                opt => opt.MapFrom(src => src.SubComments))
+            .ForPath(dest => dest.UserName,
+                opt => opt.MapFrom(src => src.User.UserName))
+            .ReverseMap();
+
+        CreateMap<CreateCommentDto, Comment>()
+            .ForMember(
+                dest => dest.Body,
+                opt => opt.MapFrom(src => src.Body))
+            .ForMember(
+                dest => dest.TaskId,
+                opt => opt.MapFrom(src => src.TaskId))
+            .ForMember(dest => dest.Action,
+                opt => opt.MapFrom(src => src.Action))
+            .ReverseMap();
     }
     
     private static DateTime? ParseDateTime(string dateString)
@@ -98,4 +122,19 @@ public class AutoMapperProfile : Profile
             ? result
             : null;
     }
+    
+    private static string ChangeCommentBody(Comment comment)
+    {
+        return comment.IsRemoved
+            ? CommentBody.DeletedCommentBody
+            : comment.Action switch
+            {
+                CommentTypes.Reply => string.Format(CommentBody.ReplyBodyTemplate, comment.Task.Name, comment.Id, comment.User.UserName, comment.Body),
+                CommentTypes.Quote => string.Format(CommentBody.QuoteBodyTemplate, comment.Task.Name, comment.Id, comment.User.UserName, comment.Body, comment.ParentComment?.Body),
+                CommentTypes.Comment => comment.Body,
+                CommentTypes.Nothing => comment.Body,
+                _ => throw new ArgumentOutOfRangeException(),
+            };
+    }
+
 }

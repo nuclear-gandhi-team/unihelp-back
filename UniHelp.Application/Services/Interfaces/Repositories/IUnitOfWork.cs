@@ -22,5 +22,7 @@ public interface IUnitOfWork
     
     IUserRepository Users { get; }
     
+    ICommentRepository Comments { get; }
+    
     System.Threading.Tasks.Task CommitAsync();
 }
