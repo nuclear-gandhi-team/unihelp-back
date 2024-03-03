@@ -16,6 +16,6 @@ public interface IUserService
 
     Task UpdateUserDataAsync(UpdateUserDto updateUserDto);
 
-    Task UpdateUserPasswordAsync(UpdateUserPasswordDto updateUserDto);
+    Task UpdateUserPasswordAsync(UpdateUserPasswordDto updateUserDto, string userId);
 
 }

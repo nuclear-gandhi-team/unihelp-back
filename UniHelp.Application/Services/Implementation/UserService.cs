@@ -114,10 +114,10 @@ public class UserService : IUserService
         }
     }
 
-    public async Task UpdateUserPasswordAsync(UpdateUserPasswordDto updateUserDto)
+    public async Task UpdateUserPasswordAsync(UpdateUserPasswordDto updateUserDto, string userId)
     {
-        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == updateUserDto.Id)
-                   ?? throw new EntityNotFoundException($"No user with Id '{updateUserDto.Id}'");
+        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId)
+                   ?? throw new EntityNotFoundException($"No user with Id '{userId}'");
 
         if (!await _userManager.CheckPasswordAsync(user, updateUserDto.OldPassword))
         {
