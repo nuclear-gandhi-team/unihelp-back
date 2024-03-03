@@ -62,7 +62,7 @@ public class ClassesController : ControllerBase
     public async Task<IActionResult> AddStudentToClass([FromBody] AddStudentToClassDto addStudentToClassDto)
     {
         var classEntity =
-            await _classService.AddStudentToClassAsync(addStudentToClassDto.ClassId, addStudentToClassDto.StudentId);
+            await _classService.AddStudentToClassAsync(addStudentToClassDto.ClassId, addStudentToClassDto.Email);
         return Ok(classEntity);
     }
 }

@@ -62,31 +62,36 @@ public class ClassService : IClassService
         return _mapper.Map<GetClassDto>(classEntity);
     }
 
-    public async Task<GetClassDto> AddStudentToClassAsync(int classId, int studentId)
+    public async Task<GetClassDto> AddStudentToClassAsync(int classId, string email)
     {
-        if (classId <= 0 || studentId <= 0)
+        if (classId <= 0 || string.IsNullOrEmpty(email))
         {
-            throw new ArgumentException("Invalid id");
+            throw new ArgumentException("Invalid id or email");
         }
         var classEntity = await _unitOfWork.Classes.GetClassWithStudentsAsync(classId);
         if (classEntity == null)
         {
             throw new EntityNotFoundException("Class not found");
         }
-        if (classEntity.StudentClasses.Any(sc => sc.StudentId == studentId))
-        {
-            throw new StudentAlreadyInClassException("Student already in class");
-        }
 
-        var studentEntity = await _unitOfWork.Students.GetStudentWithClassesAsync(studentId);
+        var userEntity = await _userManager.Users
+            .Include(u=>u.Student)
+            .FirstOrDefaultAsync(u => u.Email == email);
+        
+        var studentEntity = userEntity.Student;
         if (studentEntity == null)
         {
             throw new EntityNotFoundException("Student not found");
         }
+        if (classEntity.StudentClasses.Any(sc => sc.StudentId == studentEntity.Id))
+        {
+            throw new StudentAlreadyInClassException("Student already in class");
+        }
+
         classEntity.StudentClasses.Add(new StudentClass
         {
             ClassId = classId,
-            StudentId = studentId
+            StudentId = studentEntity.Id
         });
         
         await _unitOfWork.CommitAsync();
