@@ -13,4 +13,8 @@ public interface IStudentService
     Task<IEnumerable<GetAllDto>> GetStudentsByClassAsync(int classId);
 
     Task<IEnumerable<GetClassDto>> GetStudentClassesAsync(string userId);
+    
+    Task<double> GetStudentAttendanceAsync(int studentId, int classId);
+    
+    Task<bool> CheckIfStudentAttendedAsync(int studentId, int taskId);
 }
