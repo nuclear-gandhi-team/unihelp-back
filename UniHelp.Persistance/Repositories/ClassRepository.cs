@@ -8,7 +8,8 @@ namespace UniHelp.Persistance.Repositories;
 public class ClassRepository : Repository<Class>, IClassRepository
 {
     private readonly UniDataContext _dbContext;
-    public ClassRepository(UniDataContext dbContext) 
+
+    public ClassRepository(UniDataContext dbContext)
         : base(dbContext)
     {
         _dbContext = dbContext;
@@ -27,5 +28,13 @@ public class ClassRepository : Repository<Class>, IClassRepository
             .ThenInclude(sc => sc.Student)
             .FirstOrDefaultAsync(c => c.Id == id);
         return classEntity;
+    }
+
+    public async Task<int> GetStudentsOnClassCountAsync(int id)
+    {
+        return await _dbContext.StudentClasses
+            .Where(sc => sc.ClassId == id)
+            .DistinctBy(sc => sc.Student)
+            .CountAsync();
     }
 }

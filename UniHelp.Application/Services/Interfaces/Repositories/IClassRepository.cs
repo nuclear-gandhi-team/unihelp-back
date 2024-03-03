@@ -7,4 +7,6 @@ public interface IClassRepository : IRepository<Class>
     Task<IEnumerable<Class>> GetClassesByTeacherIdAsync(int teacherId);
     
     Task<Class> GetClassWithStudentsAsync(int id);
+    
+    Task<int> GetStudentsOnClassCountAsync(int id);
 }

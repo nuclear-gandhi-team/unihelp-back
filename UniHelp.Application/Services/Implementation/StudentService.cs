@@ -1,3 +1,4 @@
+using System.Globalization;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using UniHelp.Domain.Entities;
@@ -102,5 +103,54 @@ public class StudentService : IStudentService
             return true;
         }
         return false;
+    }
+
+    public async Task<IEnumerable<GetGradeByMonthsDto>> GetStudentAvgGradeByMonthsAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        // Ensure the user and associated student entity are not null
+        if (user == null || user.Student == null)
+        {
+            throw new ArgumentException("User or student not found.");
+        }
+
+        var tasks = user.Student.StudentTasks
+            .Select(st => st.Task)
+            .ToList();
+
+        var gradeByMonthsDtos = new List<GetGradeByMonthsDto>();
+
+        for (int i = 1; i <= 12; i++)
+        {
+            var monthlyTasks = tasks.Where(t => t.DateEnd.Month == i).ToList();
+
+            if (monthlyTasks.Any())
+            {
+                var averageGrade = monthlyTasks
+                    .Select(t =>
+                    {
+                        var st = t.StudentTasks.FirstOrDefault(st => st.StudentId == user.Student.Id);
+                        return st?.Grade ?? 0;
+                    })
+                    .Average();
+
+                gradeByMonthsDtos.Add(new GetGradeByMonthsDto
+                {
+                    Month = new DateTime(1, i, 1).ToString("MMM", CultureInfo.InvariantCulture),
+                    Total = averageGrade,
+                });
+            }
+            else
+            {
+                gradeByMonthsDtos.Add(new GetGradeByMonthsDto
+                {
+                    Month = new DateTime(1, i, 1).ToString("MMM", CultureInfo.InvariantCulture),
+                    Total = 0,
+                });
+            }
+        }
+
+        return gradeByMonthsDtos;
     }
 }

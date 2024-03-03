@@ -82,4 +82,13 @@ public class StudentsController : ControllerBase
         var attended = await _studentService.CheckIfStudentAttendedAsync(user.Student.Id, taskId);
         return Ok(attended);
     }
+    
+    [HttpGet("avg-by-months-statistics")]
+    [Authorize(Roles = UserRoleNames.Student, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public async Task<IActionResult> GetStudentAvgGradesAsync()
+    {
+        var getGradeByMonthsDtos = await _studentService.GetStudentAvgGradeByMonthsAsync(
+            (await this.GetUserIdFromJwtAsync())!);
+        return Ok(getGradeByMonthsDtos);
+    }
 }

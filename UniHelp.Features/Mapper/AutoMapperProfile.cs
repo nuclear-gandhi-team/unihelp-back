@@ -134,6 +134,7 @@ public class AutoMapperProfile : Profile
                 opt => opt.MapFrom(src => src.Class.Name))
             .ReverseMap();
 
+        CreateMap<GetBriefClassDto, Class>().ReverseMap();
     }
     
     private static DateTime? ParseDateTime(string dateString)

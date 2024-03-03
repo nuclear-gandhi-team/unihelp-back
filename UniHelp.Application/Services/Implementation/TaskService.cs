@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using UniHelp.Domain.Entities;
 using UniHelp.Domain.Enums;
+using UniHelp.Features.Exceptions;
 using UniHelp.Features.TasksFeature.Dtos;
 using UniHelp.Services.Interfaces;
 using UniHelp.Services.Interfaces.Repositories;
@@ -158,7 +159,7 @@ public class TaskService : ITaskService
         return _mapper.Map<GetTaskDto>(closestTask);
     }
 
-    public async Task<IEnumerable<GetTableTaskDto>> GetTasksByClassAsync(string userId)
+    public async Task<IEnumerable<GetTableTaskDto>> GetTasksByClassAndUserAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
 
@@ -168,5 +169,12 @@ public class TaskService : ITaskService
             .ToList();
         
         return _mapper.Map<IEnumerable<GetTableTaskDto>>(tasks);
+    }
+
+    public async Task<IEnumerable<GetTableTaskDto>> GetTasksByClassAsync(int classId)
+    {
+        var cls = await _unitOfWork.Classes.GetByIdAsync(classId)
+            ?? throw new EntityNotFoundException($"No class with Id '{classId}'");
+        return _mapper.Map<IEnumerable<GetTableTaskDto>>(cls.Tasks);
     }
 }
