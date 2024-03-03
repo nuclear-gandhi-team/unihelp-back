@@ -44,14 +44,14 @@ public class AutoMapperProfile : Profile
                 dest => dest.ClassName,
                 opt => opt.MapFrom(src => src.Name))
             .ForMember(
-                dest => dest.ClassDescription,
-                opt => opt.MapFrom(src => src.Description))
+                dest => dest.ClassId,
+                opt => opt.MapFrom(src => src.Id))
             .ForMember(
                 dest => dest.ClassesNumber,
                 opt => opt.MapFrom(src => src.ClassesNumber))
             .ForMember(
-                dest => dest.TeacherId,
-                opt => opt.MapFrom(src => src.TeacherId));
+                dest => dest.TeacherName,
+                opt => opt.MapFrom(src => src.Teacher.User.FirstName + " " + src.Teacher.User.LastName));
 
         CreateMap<AddClassDto, Class>()
             .ForMember(
