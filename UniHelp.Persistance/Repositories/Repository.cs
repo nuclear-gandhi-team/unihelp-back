@@ -4,7 +4,8 @@ using UniHelp.Services.Interfaces.Repositories;
 
 namespace UniHelp.Persistance.Repositories;
 
-public class Repository<T> : IRepository<T> where T : class
+public class Repository<T> : IRepository<T>
+    where T : class
 {
     private readonly UniDataContext _dbContext;
     private readonly DbSet<T> _dbSet;
@@ -41,6 +42,12 @@ public class Repository<T> : IRepository<T> where T : class
     public async Task DeleteAsync(T entity)
     {
         _dbSet.Remove(entity);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task AddRangeAsync(IList<T> entities)
+    {
+        await _dbSet.AddRangeAsync(entities);
         await _dbContext.SaveChangesAsync();
     }
 }

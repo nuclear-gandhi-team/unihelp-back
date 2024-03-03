@@ -1,4 +1,6 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using UniHelp.Domain.Entities;
 using UniHelp.Features.ClassFeatures.Dtos;
 using UniHelp.Features.Exceptions;
@@ -10,17 +12,25 @@ namespace UniHelp.Services.Implementation;
 public class ClassService : IClassService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly UserManager<User> _userManager;
     private readonly IMapper _mapper;
 
-    public ClassService(IUnitOfWork unitOfWork, IMapper mapper)
+    public ClassService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<User> userManager)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _userManager = userManager;
     }
 
     public async Task<IEnumerable<GetClassDto>> GetClassesAsync(int teacherId)
     {
         var classes = await _unitOfWork.Classes.GetClassesByTeacherIdAsync(teacherId);
+        return _mapper.Map<IEnumerable<GetClassDto>>(classes);
+    }
+
+    public async Task<IEnumerable<GetClassDto>> GetClassesAsync()
+    {
+        var classes = await _unitOfWork.Classes.GetAllAsync();
         return _mapper.Map<IEnumerable<GetClassDto>>(classes);
     }
 
@@ -38,12 +48,15 @@ public class ClassService : IClassService
         return _mapper.Map<GetClassDto>(classEntity);
     }
 
-    public async Task<GetClassDto> CreateClassAsync(AddClassDto newClass, int teacherId)
+    public async Task<GetClassDto> CreateClassAsync(AddClassDto newClass, string userId)
     {
         var classEntity = _mapper.Map<Class>(newClass) 
                           ?? throw new ArgumentException("Error mapping class while creating");
+
+        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId)
+            ?? throw new ArgumentException($"No user with Id '{userId}'");
         
-        classEntity.TeacherId = teacherId;
+        classEntity.TeacherId = (int)user.TeacherId!;
         await _unitOfWork.Classes.AddAsync(classEntity);
         await _unitOfWork.CommitAsync();
         return _mapper.Map<GetClassDto>(classEntity);
