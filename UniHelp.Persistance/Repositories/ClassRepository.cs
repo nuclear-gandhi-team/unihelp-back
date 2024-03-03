@@ -37,4 +37,14 @@ public class ClassRepository : Repository<Class>, IClassRepository
             .DistinctBy(sc => sc.Student)
             .CountAsync();
     }
+
+    public async Task<string> GetFullTeacherNameByClassAsync(int classId)
+    {
+        var cls = await _dbContext.Classes.FirstOrDefaultAsync(c => c.Id == classId);
+        var teacher = await _dbContext.Teachers
+            .Include(t => t.User)
+            .FirstOrDefaultAsync(t => t.Id == cls.TeacherId);
+
+        return teacher.User.FirstName + " " + teacher.User.LastName;
+    }
 }
