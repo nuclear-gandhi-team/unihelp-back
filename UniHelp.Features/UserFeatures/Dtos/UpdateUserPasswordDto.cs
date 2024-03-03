@@ -5,9 +5,6 @@ namespace UniHelp.Features.UserFeatures.Dtos;
 public record UpdateUserPasswordDto
 {
     [Required]
-    public string Id { get; set; } = default!;
-    
-    [Required]
     public string OldPassword { get; set; } = default!;
     
     [Required]

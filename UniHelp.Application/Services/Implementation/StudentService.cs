@@ -1,4 +1,8 @@
+using System.Globalization;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using UniHelp.Domain.Entities;
+using UniHelp.Features.ClassFeatures.Dtos;
 using UniHelp.Domain.Enums;
 using UniHelp.Features.Exceptions;
 using UniHelp.Features.StudentFeatures.Dtos;
@@ -10,12 +14,14 @@ namespace UniHelp.Services.Implementation;
 public class StudentService : IStudentService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly UserManager<User> _userManager;
     private readonly IMapper _mapper;
 
-    public StudentService(IUnitOfWork unitOfWork, IMapper mapper)
+    public StudentService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<User> userManager)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _userManager = userManager;
     }
 
     public async Task<GetOneDto> GetStudentByIdAsync(int id)
@@ -43,6 +49,17 @@ public class StudentService : IStudentService
         var students = await _unitOfWork.Students.GetStudentsByClassIdAsync(classId);
         var studentDto = _mapper.Map<IEnumerable<GetAllDto>>(students);
         return studentDto;
+    }
+
+    public async Task<IEnumerable<GetClassDto>> GetStudentClassesAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        var classes = user.Student.StudentClasses
+            .Select(sc => sc.Class)
+            .ToList();
+        
+        return _mapper.Map<IEnumerable<GetClassDto>>(classes);
     }
     
     public async Task<double> GetStudentAttendanceAsync(int studentId, int classId)
@@ -86,5 +103,54 @@ public class StudentService : IStudentService
             return true;
         }
         return false;
+    }
+
+    public async Task<IEnumerable<GetGradeByMonthsDto>> GetStudentAvgGradeByMonthsAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null || user.Student == null)
+        {
+            throw new ArgumentException("User or student not found.");
+        }
+
+        var tasks = user.Student.StudentTasks
+            .Select(st => st.Task)
+            .ToList();
+
+        var gradeByMonthsDtos = new List<GetGradeByMonthsDto>();
+
+        const int monthsCount = 12;
+        for (int i = 1; i <= monthsCount; i++)
+        {
+            var monthlyTasks = tasks.Where(t => t.DateEnd.Month == i).ToList();
+
+            if (monthlyTasks.Any())
+            {
+                var averageGrade = monthlyTasks
+                    .Select(t =>
+                    {
+                        var st = t.StudentTasks.FirstOrDefault(st => st.StudentId == user.Student.Id);
+                        return st?.Grade ?? 0;
+                    })
+                    .Average();
+
+                gradeByMonthsDtos.Add(new GetGradeByMonthsDto
+                {
+                    Month = new DateTime(1, i, 1).ToString("MMM", CultureInfo.InvariantCulture),
+                    Total = averageGrade,
+                });
+            }
+            else
+            {
+                gradeByMonthsDtos.Add(new GetGradeByMonthsDto
+                {
+                    Month = new DateTime(1, i, 1).ToString("MMM", CultureInfo.InvariantCulture),
+                    Total = 0,
+                });
+            }
+        }
+
+        return gradeByMonthsDtos;
     }
 }

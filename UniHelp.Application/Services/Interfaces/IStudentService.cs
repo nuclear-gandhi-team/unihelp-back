@@ -11,6 +11,10 @@ public interface IStudentService
     Task<IEnumerable<GetAllDto>> GetAllStudentsAsync();
     
     Task<IEnumerable<GetAllDto>> GetStudentsByClassAsync(int classId);
+
+    Task<IEnumerable<GetClassDto>> GetStudentClassesAsync(string userId);
+    
+    Task<IEnumerable<GetGradeByMonthsDto>> GetStudentAvgGradeByMonthsAsync(string userId);
     
     Task<double> GetStudentAttendanceAsync(int studentId, int classId);
     

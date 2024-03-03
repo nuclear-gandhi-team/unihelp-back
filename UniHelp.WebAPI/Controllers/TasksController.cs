@@ -67,12 +67,19 @@ public class TasksController : ControllerBase
     {
        return Ok(await _taskService.GetClosestTaskAsync(classId));
     }
+        
+    [HttpGet]
+    [Route("tasks-by-class/{classId:int}")]
+    public async Task<IActionResult> GetTasksByClassAsync(int classId)
+    {
+        return Ok(await _taskService.GetTasksByClassAsync(classId));
+    }
     
     [HttpGet]
     [Route("get-user-tasks")]
     [Authorize(Roles = UserRoleNames.Student, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> GetUserTasksAsync()
     {
-        return Ok(await _taskService.GetTasksByClassAsync((await this.GetUserIdFromJwtAsync())!));
+        return Ok(await _taskService.GetTasksByClassAndUserAsync((await this.GetUserIdFromJwtAsync())!));
     }
 }

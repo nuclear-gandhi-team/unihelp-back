@@ -63,6 +63,9 @@ public class UniDataContext : IdentityDbContext<User>
         modelBuilder.Entity<Student>()
             .Navigation(u => u.StudentClasses)
             .AutoInclude();
+        modelBuilder.Entity<Student>()
+            .Navigation(u => u.StudentTasks)
+            .AutoInclude();
         
         modelBuilder.Entity<StudentClass>()
             .Navigation(sc => sc.Class)

@@ -15,5 +15,7 @@ public interface ITaskService
 
     Task<GetTaskDto> GetClosestTaskAsync(int classId);
 
-    Task<IEnumerable<GetTableTaskDto>> GetTasksByClassAsync(string userId);
+    Task<IEnumerable<GetTableTaskDto>> GetTasksByClassAndUserAsync(string userId);
+    
+    Task<IEnumerable<GetTableTaskDto>> GetTasksByClassAsync(int classId);
 }

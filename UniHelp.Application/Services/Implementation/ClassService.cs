@@ -23,16 +23,22 @@ public class ClassService : IClassService
         _userManager = userManager;
     }
 
-    public async Task<IEnumerable<GetClassDto>> GetClassesAsync(int teacherId)
+    public async Task<IEnumerable<GetBriefClassDto>> GetClassesAsync(int teacherId)
     {
         var classes = await _unitOfWork.Classes.GetClassesByTeacherIdAsync(teacherId);
-        return _mapper.Map<IEnumerable<GetClassDto>>(classes);
+        var dtos = _mapper.Map<IEnumerable<GetBriefClassDto>>(classes);
+        foreach (var dto in dtos)
+        {
+            dto.StudentsCount = await GetStudentsOnClassCountAsync(dto.ClassId);
+        }
+
+        return dtos;
     }
 
-    public async Task<IEnumerable<GetClassDto>> GetClassesAsync()
+    public async Task<IEnumerable<GetBriefClassDto>> GetClassesAsync()
     {
         var classes = await _unitOfWork.Classes.GetAllAsync();
-        return _mapper.Map<IEnumerable<GetClassDto>>(classes);
+        return _mapper.Map<IEnumerable<GetBriefClassDto>>(classes);
     }
 
     public async Task<GetClassDto> GetClassByIdAsync(int id)
@@ -97,5 +103,10 @@ public class ClassService : IClassService
         
         await _unitOfWork.CommitAsync();
         return _mapper.Map<GetClassDto>(classEntity);
+    }
+
+    public Task<int> GetStudentsOnClassCountAsync(int classId)
+    {
+        return _unitOfWork.Classes.GetStudentsOnClassCountAsync(classId);
     }
 }

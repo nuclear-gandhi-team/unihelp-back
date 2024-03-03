@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using UniHelp.Features.Constants;
 using UniHelp.Domain.Entities;
 using UniHelp.Features.Constants;
 using UniHelp.Services.Interfaces;
@@ -36,10 +39,19 @@ public class StudentsController : ControllerBase
         return Ok(student);
     }
     
-    [HttpGet("class/{classId}")]
+    [HttpGet("class/{classId:int}")]
     public async Task<IActionResult> GetStudentsByClassAsync(int classId)
     {
         var students = await _studentService.GetStudentsByClassAsync(classId);
+        return Ok(students);
+    }
+    
+    [HttpGet("classes")]
+    [Authorize(Roles = UserRoleNames.Student, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public async Task<IActionResult> GetStudentClassesAsync()
+    {
+        var students = await _studentService.GetStudentClassesAsync(
+            (await this.GetUserIdFromJwtAsync())!);
         return Ok(students);
     }
     
@@ -69,5 +81,14 @@ public class StudentsController : ControllerBase
         var user = await _userManager.FindByIdAsync(userId);
         var attended = await _studentService.CheckIfStudentAttendedAsync(user.Student.Id, taskId);
         return Ok(attended);
+    }
+    
+    [HttpGet("avg-by-months-statistics")]
+    [Authorize(Roles = UserRoleNames.Student, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public async Task<IActionResult> GetStudentAvgGradesAsync()
+    {
+        var getGradeByMonthsDtos = await _studentService.GetStudentAvgGradeByMonthsAsync(
+            (await this.GetUserIdFromJwtAsync())!);
+        return Ok(getGradeByMonthsDtos);
     }
 }
