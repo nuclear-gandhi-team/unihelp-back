@@ -109,7 +109,6 @@ public class StudentService : IStudentService
     {
         var user = await _userManager.FindByIdAsync(userId);
 
-        // Ensure the user and associated student entity are not null
         if (user == null || user.Student == null)
         {
             throw new ArgumentException("User or student not found.");
@@ -121,7 +120,8 @@ public class StudentService : IStudentService
 
         var gradeByMonthsDtos = new List<GetGradeByMonthsDto>();
 
-        for (int i = 1; i <= 12; i++)
+        const int monthsCount = 12;
+        for (int i = 1; i <= monthsCount; i++)
         {
             var monthlyTasks = tasks.Where(t => t.DateEnd.Month == i).ToList();
 
