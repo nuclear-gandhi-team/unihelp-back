@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UniHelp.Domain.Entities;
+using UniHelp.Domain.Enums;
 using UniHelp.Features.ClassFeatures.Dtos;
 using UniHelp.Features.Exceptions;
 using UniHelp.Services.Interfaces;

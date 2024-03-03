@@ -1,5 +1,11 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using UniHelp.Domain.Entities;
+using UniHelp.Features.Constants;
 using UniHelp.Services.Interfaces;
+using UniHelp.WebAPI.Extensions;
 
 namespace UniHelp.WebAPI.Controllers;
 
@@ -8,10 +14,12 @@ namespace UniHelp.WebAPI.Controllers;
 public class StudentsController : ControllerBase
 {
     private readonly IStudentService _studentService;
+    private readonly UserManager<User> _userManager;
 
-    public StudentsController(IStudentService studentService)
+    public StudentsController(IStudentService studentService, UserManager<User> userManager)
     {
         _studentService = studentService;
+        _userManager = userManager;
     }
     
     [HttpGet]
@@ -33,5 +41,19 @@ public class StudentsController : ControllerBase
     {
         var students = await _studentService.GetStudentsByClassAsync(classId);
         return Ok(students);
+    }
+    
+    [HttpGet("attendance/{classId}")]
+    [Authorize(Roles = UserRoleNames.Student, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public async Task<IActionResult> GetStudentAttendanceAsync(int classId)
+    {
+        var userId = await this.GetUserIdFromJwtAsync();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+        var user = await _userManager.FindByIdAsync(userId);
+        var attendance = await _studentService.GetStudentAttendanceAsync(user.Student.Id, classId);
+        return Ok(attendance);
     }
 }
