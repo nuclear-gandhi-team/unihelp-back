@@ -59,7 +59,14 @@ public class StudentService : IStudentService
             .Select(sc => sc.Class)
             .ToList();
         
-        return _mapper.Map<IEnumerable<GetClassDto>>(classes);
+        var dtos = _mapper.Map<IEnumerable<GetClassDto>>(classes);
+
+        foreach (var dto in dtos)
+        {
+            dto.TeacherName = await _unitOfWork.Classes.GetFullTeacherNameByClassAsync(dto.ClassId);
+        }
+
+        return dtos;
     }
     
     public async Task<double> GetStudentAttendanceAsync(int studentId, int classId)
