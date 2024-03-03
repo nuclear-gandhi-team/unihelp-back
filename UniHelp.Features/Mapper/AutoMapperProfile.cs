@@ -6,7 +6,9 @@ using UniHelp.Features.ClassFeatures.Dtos;
 using UniHelp.Features.CommentFeatures;
 using UniHelp.Features.Constants;
 using UniHelp.Features.StudentFeatures.Dtos;
+using UniHelp.Features.TasksFeature.Dtos;
 using UniHelp.Features.UserFeatures.Dtos;
+using Task = UniHelp.Domain.Entities.Task;
 
 namespace UniHelp.Features.Mapper;
 
@@ -25,6 +27,18 @@ public class AutoMapperProfile : Profile
             .ReverseMap();
         
         CreateMap<RegisterStudentDto, Student>().ReverseMap();
+
+        CreateMap<AddTaskDto, Task>()
+            .ForMember(dest => dest.TestQuestions,
+            opt =>opt.MapFrom(_ =>new List<TestQuestion>()))
+            .ReverseMap();
+        
+        CreateMap<AddTestQuestionDto, TestQuestion>()
+            .ForMember(dest => dest.Question,
+                opt =>opt.MapFrom(src => src.Question))
+            .ReverseMap();
+
+        CreateMap<GetTaskDto, Task>().ReverseMap();
         CreateMap<Class, GetClassDto>()
             .ForMember(
                 dest => dest.ClassName,
@@ -52,9 +66,9 @@ public class AutoMapperProfile : Profile
             .ReverseMap();
         
         CreateMap<AddStudentToClassDto, StudentClass>()
-            .ForMember(
-                dest => dest.StudentId,
-                opt => opt.MapFrom(src => src.StudentId))
+            .ForPath(
+                dest => dest.Student.User.Email,
+                opt => opt.MapFrom(src => src.Email))
             .ForMember(
                 dest => dest.ClassId,
                 opt => opt.MapFrom(src => src.ClassId))
@@ -113,6 +127,13 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.Action,
                 opt => opt.MapFrom(src => src.Action))
             .ReverseMap();
+
+        CreateMap<Task, GetTableTaskDto>()
+            .ForMember(
+                dest => dest.ClassName,
+                opt => opt.MapFrom(src => src.Class.Name))
+            .ReverseMap();
+
     }
     
     private static DateTime? ParseDateTime(string dateString)
@@ -136,5 +157,4 @@ public class AutoMapperProfile : Profile
                 _ => throw new ArgumentOutOfRangeException(),
             };
     }
-
 }

@@ -13,10 +13,16 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.16" />
       <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="7.0.16" />
       <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="7.0.16" />
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.35.0" />
+      <PackageReference Include="System.Linq" Version="4.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Microsoft.AspNetCore.Http.Features" />
     </ItemGroup>
 
 </Project>

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UniHelp.Persistance.Context;
 
@@ -11,9 +12,11 @@ using UniHelp.Persistance.Context;
 namespace UniHelp.Persistance.Migrations
 {
     [DbContext(typeof(UniDataContext))]
-    partial class UniDataContextModelSnapshot : ModelSnapshot
+    [Migration("20240302184058_AnswerIsCorrectBoolMig")]
+    partial class AnswerIsCorrectBoolMig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,29 @@ namespace UniHelp.Persistance.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("DefaultNamespace.StudentClass", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("StudentClasses");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -209,45 +235,6 @@ namespace UniHelp.Persistance.Migrations
                     b.ToTable("Classes");
                 });
 
-            modelBuilder.Entity("UniHelp.Domain.Entities.Comment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Action")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsRemoved")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("ParentCommentId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TaskId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentCommentId");
-
-                    b.HasIndex("TaskId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Comments");
-                });
-
             modelBuilder.Entity("UniHelp.Domain.Entities.Student", b =>
                 {
                     b.Property<int>("Id")
@@ -271,29 +258,6 @@ namespace UniHelp.Persistance.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Students");
-                });
-
-            modelBuilder.Entity("UniHelp.Domain.Entities.StudentClass", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ClassId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClassId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("StudentClasses");
                 });
 
             modelBuilder.Entity("UniHelp.Domain.Entities.StudentTask", b =>
@@ -489,6 +453,25 @@ namespace UniHelp.Persistance.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("DefaultNamespace.StudentClass", b =>
+                {
+                    b.HasOne("UniHelp.Domain.Entities.Class", "Class")
+                        .WithMany("StudentClasses")
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UniHelp.Domain.Entities.Student", "Student")
+                        .WithMany("StudentClasses")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Class");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -562,50 +545,6 @@ namespace UniHelp.Persistance.Migrations
                     b.Navigation("Teacher");
                 });
 
-            modelBuilder.Entity("UniHelp.Domain.Entities.Comment", b =>
-                {
-                    b.HasOne("UniHelp.Domain.Entities.Comment", "ParentComment")
-                        .WithMany("SubComments")
-                        .HasForeignKey("ParentCommentId");
-
-                    b.HasOne("UniHelp.Domain.Entities.Task", "Task")
-                        .WithMany("Comments")
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("UniHelp.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ParentComment");
-
-                    b.Navigation("Task");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("UniHelp.Domain.Entities.StudentClass", b =>
-                {
-                    b.HasOne("UniHelp.Domain.Entities.Class", "Class")
-                        .WithMany("StudentClasses")
-                        .HasForeignKey("ClassId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("UniHelp.Domain.Entities.Student", "Student")
-                        .WithMany("StudentClasses")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Class");
-
-                    b.Navigation("Student");
-                });
-
             modelBuilder.Entity("UniHelp.Domain.Entities.StudentTask", b =>
                 {
                     b.HasOne("UniHelp.Domain.Entities.Student", "Student")
@@ -669,11 +608,6 @@ namespace UniHelp.Persistance.Migrations
                     b.Navigation("Tasks");
                 });
 
-            modelBuilder.Entity("UniHelp.Domain.Entities.Comment", b =>
-                {
-                    b.Navigation("SubComments");
-                });
-
             modelBuilder.Entity("UniHelp.Domain.Entities.Student", b =>
                 {
                     b.Navigation("StudentClasses");
@@ -686,8 +620,6 @@ namespace UniHelp.Persistance.Migrations
 
             modelBuilder.Entity("UniHelp.Domain.Entities.Task", b =>
                 {
-                    b.Navigation("Comments");
-
                     b.Navigation("StudentTasks");
 
                     b.Navigation("TestQuestions");

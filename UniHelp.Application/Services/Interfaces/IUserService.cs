@@ -14,7 +14,7 @@ public interface IUserService
 
     Task<GetFullUserDto> GetUserByIdAsync(string id);
 
-    Task UpdateUserDataAsync(UpdateUserDto updateUserDto);
+    Task UpdateUserDataAsync(UpdateUserDto updateUserDto, string userId);
 
     Task UpdateUserPasswordAsync(UpdateUserPasswordDto updateUserDto, string userId);
 

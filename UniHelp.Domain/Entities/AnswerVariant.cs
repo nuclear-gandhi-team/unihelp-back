@@ -6,6 +6,8 @@ namespace UniHelp.Domain.Entities;
 public class AnswerVariant : BaseEntity
 {
     public string Text { get; set; }
+
+    public bool IsCorrect { get; set; }
     
     [ForeignKey(nameof(Question))]
     public int QuestionId { get; set; }
