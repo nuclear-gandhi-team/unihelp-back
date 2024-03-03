@@ -14,7 +14,6 @@ public class ClassService : IClassService
     private readonly IUnitOfWork _unitOfWork;
     private readonly UserManager<User> _userManager;
     private readonly IMapper _mapper;
-    private readonly UserManager<User> _userManager;
 
     public ClassService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<User> userManager)
     {
@@ -23,7 +22,7 @@ public class ClassService : IClassService
         _userManager = userManager;
     }
 
-    public async Task<IEnumerable<GetClassDto>> GetAllTeacherClassesAsync(int teacherId)
+    public async Task<IEnumerable<GetClassDto>> GetClassesAsync(int teacherId)
     {
         var classes = await _unitOfWork.Classes.GetClassesByTeacherIdAsync(teacherId);
         return _mapper.Map<IEnumerable<GetClassDto>>(classes);

@@ -1,4 +1,3 @@
-using UniHelp.Domain.Entities;
 using UniHelp.Features.ClassFeatures.Dtos;
 
 namespace UniHelp.Services.Interfaces;
@@ -13,5 +12,5 @@ public interface IClassService
     
     Task<GetClassDto> CreateClassAsync(AddClassDto newClass, string userId);
     
-    Task<GetClassDto> AddStudentToClassAsync(int classId, int userId);
+    Task<GetClassDto> AddStudentToClassAsync(int classId, string email);
 }
