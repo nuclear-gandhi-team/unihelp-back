@@ -56,4 +56,18 @@ public class StudentsController : ControllerBase
         var attendance = await _studentService.GetStudentAttendanceAsync(user.Student.Id, classId);
         return Ok(attendance);
     }
+    
+    [HttpGet("attendance/class/{taskId}")]
+    [Authorize(Roles = UserRoleNames.Student, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public async Task<IActionResult> CheckIfStudentAttendedAsync(int taskId)
+    {
+        var userId = await this.GetUserIdFromJwtAsync();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+        var user = await _userManager.FindByIdAsync(userId);
+        var attended = await _studentService.CheckIfStudentAttendedAsync(user.Student.Id, taskId);
+        return Ok(attended);
+    }
 }
