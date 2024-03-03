@@ -134,7 +134,17 @@ public class AutoMapperProfile : Profile
                 opt => opt.MapFrom(src => src.Class.Name))
             .ReverseMap();
 
-        CreateMap<GetBriefClassDto, Class>().ReverseMap();
+        CreateMap<GetBriefClassDto, Class>()
+            .ForMember(
+                dest => dest.Name,
+                opt => opt.MapFrom(src => src.ClassName))
+            .ForMember(
+                dest => dest.Id,
+                opt => opt.MapFrom(src => src.ClassId))
+            .ForMember(
+                dest => dest.ClassesNumber,
+                opt => opt.MapFrom(src => src.ClassesNumber))
+            .ReverseMap();
     }
     
     private static DateTime? ParseDateTime(string dateString)
