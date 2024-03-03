@@ -50,7 +50,7 @@ public class ClassesController : ControllerBase
     }
 
     [HttpPost("create-class")]
-    [Authorize(Roles = UserRoleNames.Student, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(Roles = UserRoleNames.Teacher, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> CreateClass([FromBody] AddClassDto newClass)
     {
         var classEntity = await _classService.CreateClassAsync(newClass, await this.GetUserIdFromJwtAsync());
@@ -58,7 +58,7 @@ public class ClassesController : ControllerBase
     }
 
     [HttpPost("add-student-to-class")]
-    [Authorize(Roles = UserRoleNames.Student, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(Roles = UserRoleNames.Teacher, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> AddStudentToClass([FromBody] AddStudentToClassDto addStudentToClassDto)
     {
         var classEntity =

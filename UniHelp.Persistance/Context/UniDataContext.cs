@@ -52,5 +52,24 @@ public class UniDataContext : IdentityDbContext<User>
             .HasOne(sc => sc.User)
             .WithOne(u => u.Teacher)
             .HasForeignKey<User>(u => u.TeacherId);
+        
+        modelBuilder.Entity<User>()
+            .Navigation(u => u.Student)
+            .AutoInclude();
+        modelBuilder.Entity<User>()
+            .Navigation(u => u.Teacher)
+            .AutoInclude();
+        
+        modelBuilder.Entity<Student>()
+            .Navigation(u => u.StudentClasses)
+            .AutoInclude();
+        
+        modelBuilder.Entity<StudentClass>()
+            .Navigation(sc => sc.Class)
+            .AutoInclude();
+        
+        modelBuilder.Entity<Class>()
+            .Navigation(c => c.Tasks)
+            .AutoInclude();
     }
 }

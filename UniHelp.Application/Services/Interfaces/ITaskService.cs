@@ -14,4 +14,6 @@ public interface ITaskService
     Task SetGradeAsync(SetGradeDto setGradeDto);
 
     Task<GetTaskDto> GetClosestTaskAsync(int classId);
+
+    Task<IEnumerable<GetTableTaskDto>> GetTasksByClassAsync(string userId);
 }

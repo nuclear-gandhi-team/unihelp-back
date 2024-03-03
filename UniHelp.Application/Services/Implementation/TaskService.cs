@@ -157,4 +157,16 @@ public class TaskService : ITaskService
 
         return _mapper.Map<GetTaskDto>(closestTask);
     }
+
+    public async Task<IEnumerable<GetTableTaskDto>> GetTasksByClassAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        var tasks = user.Student.StudentClasses
+            .Select(sc => sc.Class)
+            .SelectMany(c => c.Tasks)
+            .ToList();
+        
+        return _mapper.Map<IEnumerable<GetTableTaskDto>>(tasks);
+    }
 }

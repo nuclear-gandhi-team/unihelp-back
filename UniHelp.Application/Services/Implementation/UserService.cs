@@ -90,10 +90,10 @@ public class UserService : IUserService
         return _mapper.Map<GetFullUserDto>(user)!;
     }
 
-    public async Task UpdateUserDataAsync(UpdateUserDto updateUserDto)
+    public async Task UpdateUserDataAsync(UpdateUserDto updateUserDto, string userId)
     {
-        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == updateUserDto.Id)
-                   ?? throw new EntityNotFoundException($"No user with Id '{updateUserDto.Id}'");
+        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId)
+                   ?? throw new EntityNotFoundException($"No user with Id '{userId}'");
 
         if (updateUserDto.NewFirstName is not null)
         {
@@ -105,8 +105,8 @@ public class UserService : IUserService
             user.LastName = updateUserDto.NewLastName;
         }
         
-        user.UserName = updateUserDto.NewFirstName + " " + updateUserDto.NewLastName;
-        user.NormalizedUserName =updateUserDto.NewFirstName + " " + updateUserDto.NewLastName;
+        user.UserName = updateUserDto.NewFirstName + updateUserDto.NewLastName;
+        user.NormalizedUserName = (updateUserDto.NewFirstName + updateUserDto.NewLastName).ToUpperInvariant();
 
         var updateResult = await _userManager.UpdateAsync(user);
 
@@ -116,10 +116,10 @@ public class UserService : IUserService
         }
     }
 
-    public async Task UpdateUserPasswordAsync(UpdateUserPasswordDto updateUserDto)
+    public async Task UpdateUserPasswordAsync(UpdateUserPasswordDto updateUserDto, string userId)
     {
-        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == updateUserDto.Id)
-                   ?? throw new EntityNotFoundException($"No user with Id '{updateUserDto.Id}'");
+        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId)
+                   ?? throw new EntityNotFoundException($"No user with Id '{userId}'");
 
         if (!await _userManager.CheckPasswordAsync(user, updateUserDto.OldPassword))
         {

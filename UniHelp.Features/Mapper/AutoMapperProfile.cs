@@ -127,6 +127,13 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.Action,
                 opt => opt.MapFrom(src => src.Action))
             .ReverseMap();
+
+        CreateMap<Task, GetTableTaskDto>()
+            .ForMember(
+                dest => dest.ClassName,
+                opt => opt.MapFrom(src => src.Class.Name))
+            .ReverseMap();
+
     }
     
     private static DateTime? ParseDateTime(string dateString)
