@@ -69,4 +69,22 @@ public class StudentService : IStudentService
         }
         return ((double)attended / totalClasses) * 100;
     }
+
+    public async Task<bool> CheckIfStudentAttendedAsync(int studentId, int taskId)
+    {
+        var studentTask = await _unitOfWork.StudentTasks.GetStudentTaskByIdAsync(studentId, taskId);
+        if (studentTask == null)
+        {
+            throw new EntityNotFoundException("Student task not found");
+        }
+        if (studentTask.Task.Type != TaskType.Class)
+        {
+            throw new ArgumentException("Task is not a class");
+        }
+        if (studentTask.Grade > 0)
+        {
+            return true;
+        }
+        return false;
+    }
 }
