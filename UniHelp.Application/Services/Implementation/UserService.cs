@@ -47,13 +47,15 @@ public class UserService : IUserService
         var userExists = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == loginUserDto.Email)
                          ?? throw new ArgumentException("User doest exists");
 
+        var role = await _userManager.IsInRoleAsync(userExists, UserRoleNames.Student)
+            ? UserRoleNames.Student
+            : UserRoleNames.Teacher;
+        
         return await _userManager.CheckPasswordAsync(userExists, loginUserDto.Password)
             ? new LoginResponseDto 
             { 
-                Token =  GenerateJwtAsync(userExists),
-                Role = await _userManager.IsInRoleAsync(userExists, UserRoleNames.Student) 
-                    ? UserRoleNames.Student
-                    : UserRoleNames.Teacher 
+                Token =  GenerateJwtAsync(userExists, role),
+                Role = role
             }
             : throw new AuthenticationException("Wrong password");
     }
@@ -88,10 +90,10 @@ public class UserService : IUserService
         return _mapper.Map<GetFullUserDto>(user)!;
     }
 
-    public async Task UpdateUserDataAsync(UpdateUserDto updateUserDto)
+    public async Task UpdateUserDataAsync(UpdateUserDto updateUserDto, string userId)
     {
-        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == updateUserDto.Id)
-                   ?? throw new EntityNotFoundException($"No user with Id '{updateUserDto.Id}'");
+        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId)
+                   ?? throw new EntityNotFoundException($"No user with Id '{userId}'");
 
         if (updateUserDto.NewFirstName is not null)
         {
@@ -103,8 +105,8 @@ public class UserService : IUserService
             user.LastName = updateUserDto.NewLastName;
         }
         
-        user.UserName = updateUserDto.NewFirstName + " " + updateUserDto.NewLastName;
-        user.NormalizedUserName =updateUserDto.NewFirstName + " " + updateUserDto.NewLastName;
+        user.UserName = updateUserDto.NewFirstName + updateUserDto.NewLastName;
+        user.NormalizedUserName = (updateUserDto.NewFirstName + updateUserDto.NewLastName).ToUpperInvariant();
 
         var updateResult = await _userManager.UpdateAsync(user);
 
@@ -114,10 +116,10 @@ public class UserService : IUserService
         }
     }
 
-    public async Task UpdateUserPasswordAsync(UpdateUserPasswordDto updateUserDto)
+    public async Task UpdateUserPasswordAsync(UpdateUserPasswordDto updateUserDto, string userId)
     {
-        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == updateUserDto.Id)
-                   ?? throw new EntityNotFoundException($"No user with Id '{updateUserDto.Id}'");
+        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId)
+                   ?? throw new EntityNotFoundException($"No user with Id '{userId}'");
 
         if (!await _userManager.CheckPasswordAsync(user, updateUserDto.OldPassword))
         {
@@ -142,7 +144,7 @@ public class UserService : IUserService
         }
     }
     
-    private string GenerateJwtAsync(User user)
+    private string GenerateJwtAsync(User user, string roleName)
     {
         var authClaims = new List<Claim>
         {
@@ -150,6 +152,7 @@ public class UserService : IUserService
             new(ClaimTypes.NameIdentifier, user.Id),
             new(JwtRegisteredClaimNames.Sub, user.UserName ?? string.Empty),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(ClaimTypes.Role, roleName),
         };
 
         var authSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtOptions.Secret));
@@ -167,6 +170,10 @@ public class UserService : IUserService
     
     private async Task<User> RegisterUserAsync(RegisterUserDto registerUserDto)
     {
+        if (registerUserDto.Password != registerUserDto.ConfirmPassword)
+        {
+            throw new ArgumentException("Password is not equal to Confirm Password");
+        }
         var userExists = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == registerUserDto.Email);
 
         if (userExists is not null)
